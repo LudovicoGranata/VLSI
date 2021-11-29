@@ -1,0 +1,10 @@
+width = 10;
+n_circuits = 6;
+circuit_dimensions = 
+[|3, 3
+|3, 4
+|3, 6
+|3, 7
+|4, 4
+|4, 6
+ |];
