@@ -4,7 +4,7 @@ import datetime
 import minizinc as mz
 
 # For SAT solving:
-import sat_utils
+from sat_utils import *
 
 def solve_cp():
     Total_instances = 40
