@@ -10,13 +10,14 @@ array[CIRCUITS] of int: CIRCUITS_ORDERED = sort_by(CIRCUITS, [-circuit_dimension
 array[CIRCUITS] of int: circuit_dimensions_ordered_x = [circuit_dimensions[CIRCUITS_ORDERED[c],1] | c in CIRCUITS];
 array[CIRCUITS] of int: circuit_dimensions_ordered_y =[circuit_dimensions[CIRCUITS_ORDERED[c],2] | c in CIRCUITS];
 int: max_height = sum ([circuit_dimensions_ordered_y[c] | c in CIRCUITS]);
-int: min_height = (sum([circuit_dimensions_ordered_x[c] * circuit_dimensions_ordered_y[c] | c in CIRCUITS]) div width)+1;
+int: min_height = (sum([circuit_dimensions_ordered_x[c] * circuit_dimensions_ordered_y[c] | c in CIRCUITS]) div width);
 int: max_solution = max(max_height, width);
 array[CIRCUITS,1..2] of var 0..max_solution: solution;
 %var int: height = max(c in CIRCUITS)(solution[c,2] + circuit_dimensions_ordered_y[c]);
 var min_height..max_height: height = max(c in CIRCUITS)(solution[c,2] + circuit_dimensions_ordered_y[c]);
 
-
+constraint forall (c in CIRCUITS) (solution[c,1]< width)::domain;
+constraint forall (c in CIRCUITS)(solution[c,2] < height)::domain;
 constraint diffn ([solution[c,1]|c in CIRCUITS],[solution[c,2]|c in CIRCUITS],[circuit_dimensions_ordered_x[c]|c in CIRCUITS],[circuit_dimensions_ordered_y[c]|c in CIRCUITS]);
 constraint forall (c in CIRCUITS) (solution[c,1]+ circuit_dimensions_ordered_x[c] <= width)::domain;
 constraint forall (c in CIRCUITS)(solution[c,2] + circuit_dimensions_ordered_y[c] <= height)::domain;
