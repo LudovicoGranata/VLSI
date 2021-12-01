@@ -33,7 +33,8 @@ def solve_cp():
     print ("the average solving time of the solved instances_cp is "+str(Average_time)+ " seconds and the solved instances_cp are "+str(Solved_instances)+"/40" )
 
 def solve_SAT():
-    create_solver_from_instance('./instances_SAT/ins-1.txt')
+    solution = solve_SAT_instance(1)
+    print(solution)
 
 
 if __name__ == '__main__':
