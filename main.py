@@ -33,11 +33,19 @@ def solve_cp():
     print ("the average solving time of the solved instances_cp is "+str(Average_time)+ " seconds and the solved instances_cp are "+str(Solved_instances)+"/40" )
 
 def solve_SAT():
-    solution = solve_SAT_instance(1)
-    print(solution)
+    print("[SAT solver]")
+
+    for i in range(1, 41):
+        print(f">>> Trying to solve instance #{i}...")
+        try:
+            solution = solve_SAT_instance(i)
+            print(solution)
+        except:
+            print(f"Solver failed on instance #{i}.")
+        print()
 
 
 if __name__ == '__main__':
-    solve_cp()
-    #solve_SAT()
+    #solve_cp()
+    solve_SAT()
 
