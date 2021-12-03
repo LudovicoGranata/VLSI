@@ -40,8 +40,8 @@ def solve_SAT():
         try:
             solution = solve_SAT_instance(i)
             print(solution)
-        except:
-            print(f"Solver failed on instance #{i}.")
+        except Exception as error:
+            print(f"Solver failed on instance #{i}. Error: {error}")
         print()
 
 
