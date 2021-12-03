@@ -13,7 +13,7 @@ def solve_cp():
     Average_time = 0
     gecode = mz.Solver.lookup("gecode")
     for i in range(1, 41):
-        print ("trying to solve instance :"+ str(i)+ "...")
+        print(f">>> Trying to solve instance #{i}...")
         VLSI_model = mz.Model("./VLSI_model.mzn")
         VLSI_model.add_file("./instances_cp/ins-"+str(i)+".dzn")
         instance = mz.Instance(gecode, VLSI_model)
@@ -21,7 +21,7 @@ def solve_cp():
         #print(result)
         if result.status == mz.result.Status.OPTIMAL_SOLUTION:
             solving_time = ((result.statistics['time'].microseconds / (10 ** 6)) + result.statistics['time'].seconds)
-            print("solved instance " + str(i) + " in = " + str (solving_time))
+            print("solved instance " + str(i) + " in = " + str(round(solving_time, 3)))
             Solved_instances+=1
             Average_time += solving_time
             with open('./out_cp/ins-' + str(i) + '.txt', 'w') as writefile:
@@ -46,6 +46,6 @@ def solve_SAT():
 
 
 if __name__ == '__main__':
-    #solve_cp()
-    solve_SAT()
+    solve_cp()
+    #solve_SAT()
 
