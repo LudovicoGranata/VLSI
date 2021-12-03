@@ -5,6 +5,7 @@ def get_cmap(n, name = 'hsv'):
 
 def plot(dir, instance, out):
   plt.figure(figsize=(8, 8))
+  plt.title(f'Solution for: "{instance}"')
   ax = plt.gca()
   cmap = None
 
@@ -24,6 +25,12 @@ def plot(dir, instance, out):
       else:
         c_width, c_height, c_bottom_left_x, c_bottom_left_y =  line.split()
         circuit = plt.Rectangle((int(c_bottom_left_x), int(c_bottom_left_y)), width=int(c_width), height=int(c_height), facecolor=cmap(i-2), edgecolor="black")
+        ax.add_artist(circuit)
+        rx, ry = circuit.get_xy()
+        cx = rx + circuit.get_width()/2.0
+        cy = ry + circuit.get_height()/2.0
+
+        ax.annotate(f'{i-2}', (cx, cy), color='w', weight='bold', fontsize=12, ha='center', va='center')
         ax.add_patch(circuit)
       i += 1
 
