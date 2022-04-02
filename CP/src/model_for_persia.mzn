@@ -1,3 +1,5 @@
+% Similar to parsa_base_model
+
 include "globals.mzn";
 include "gecode.mzn";
 int: n_circuits;   % Number of circuits

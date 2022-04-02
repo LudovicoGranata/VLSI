@@ -1,3 +1,5 @@
+% Baseline model
+
 include "globals.mzn";
 
 int: n_circuits;   % Number of tasks

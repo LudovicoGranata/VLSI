@@ -1,3 +1,8 @@
+% Here we consider the bottom-left and top-right borders
+% Why are they ordered ???
+% Symmetry on bottom left
+% => Test the two piece symmetry
+
 include "globals.mzn";
 include "gecode.mzn";
 
