@@ -28,7 +28,7 @@ def solve_cp(model_path):
             Average_time += solving_time
             with open('./CP/out/ins-' + str(i) + '.txt', 'w') as writefile:
                 writefile.write(str(result))
-            plot.plot("./CP/out","ins-"+str(i)+".txt","./CP/out/images")
+            plot.plot("./CP/out/","ins-"+str(i)+".txt","./CP/out/images")
         else:
             print("instance: "+str(i)+" not solved in the timelimit")
     if Solved_instances!=0:
@@ -52,5 +52,5 @@ def solve_SAT():
 
 if __name__ == '__main__':
     solve_cp("./CP/src/parsa/base_model.mzn")
-    solve_SAT()
+    #solve_SAT()
 
