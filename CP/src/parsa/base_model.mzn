@@ -96,8 +96,7 @@ solve
 	:: restart_luby(150)
 	minimize height;
 
-output ["height=\(height)\n",
-		"circuitx=\(circuitx)\n",
-		"circuity=\(circuity)\n",
-		"hor_dim=\(hor_dim_ord)\n",
-		"ver_dim=\(ver_dim_ord)\n"]
+
+		output [ show(width) ++ " " ++ show(height) ++ " \n" ++ show(n_circuits)]
+++[ "\n" ++ show(hor_dim[c])++ " " ++ show(ver_dim[c])++ " " ++ show(circuitx[c]) ++ " "++ show(circuity[c])|
+c in CIRCUITS ]
