@@ -53,4 +53,4 @@ def solve_SAT():
 if __name__ == '__main__':
     solve_cp("./CP/src/parsa/base_model.mzn")
     #solve_SAT()
-
+    
