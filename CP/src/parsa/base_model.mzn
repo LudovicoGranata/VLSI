@@ -91,23 +91,23 @@ predicate two_stack_hor(int: i, int: j) = (
 );
 
 constraint symmetry_breaking_constraint (
-	forall (i,j in CIRCUITS where i<j) (two_stack_ver(i,j))
+	forall (i,j in CIRCUITS where i<j) (two_stack_ver(i,j) /\ two_stack_hor(i,j))
 );
 
-constraint symmetry_breaking_constraint (
-	forall (i,j in CIRCUITS where i<j) ( two_stack_hor(i,j) )
-);
+% constraint symmetry_breaking_constraint (
+% 	forall (i,j in CIRCUITS where i<j) (two_stack_hor(i,j))
+% );
 
 % ============ S.B. on 3 circuit blocks ==============
 % constraint symmetry_breaking_constraint (
-% 	forall (i,j,k in CIRCUITS where i!=j /\ j!=k)(
+% 	forall (i,j,k in CIRCUITS where i!=j /\ j!=k /\ i!=k)(
 % 		( (circuity[i] == circuity[j]) /\ ver_dim_ord[i] == ver_dim_ord[j] /\ hor_dim_ord[i] + hor_dim_ord[j] == max([circuitx[i]+hor_dim_ord[i],circuitx[j]+hor_dim_ord[j]]) - min([circuitx[i],circuitx[j]]) /\ circuitx[k] == min( [circuitx[i],circuitx[j]]) /\ hor_dim_ord[k] == hor_dim_ord[i] + hor_dim_ord[j] /\ ver_dim_ord[k] + ver_dim_ord[i] == max([circuity[k]+ver_dim_ord[k],circuity[i]+ver_dim_ord[i]]) - min([circuity[k],circuity[i]]))
 % 			-> circuity[k] < circuity[i]
 % 	)
 % );
 
 % constraint symmetry_breaking_constraint (
-% 	forall (i,j,k in CIRCUITS where i!=j /\ j!=k)(
+% 	forall (i,j,k in CIRCUITS where i!=j /\ j!=k /\ i!=k)(
 % 		(((circuitx[i] == circuitx[j]) /\ hor_dim_ord[i] == hor_dim_ord[j] /\ ver_dim_ord[i] + ver_dim_ord[j] == max([circuity[i]+ver_dim_ord[i],circuity[j]+ver_dim_ord[j]]) - min([circuity[i],circuity[j]])) /\ circuity[k] == min([circuity[i], circuity[j]]) /\ ver_dim_ord[k] == ver_dim_ord[i] + ver_dim_ord[j] /\ hor_dim_ord[k] + hor_dim_ord[i] == max([circuitx[k]+hor_dim_ord[k],circuitx[i]+hor_dim_ord[i]]) - min([circuitx[k],circuitx[i]]))
 % 		-> circuitx[k] < circuitx[i]
 % 	)
