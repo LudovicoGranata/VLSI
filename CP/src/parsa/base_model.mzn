@@ -37,6 +37,7 @@ array[CIRCUITS] of int: circuits_ordered = sort_by(CIRCUITS,
 array[CIRCUITS] of int: hor_dim_ord = [hor_dim[circuits_ordered[i]] | i in CIRCUITS];
 array[CIRCUITS] of int: ver_dim_ord = [ver_dim[circuits_ordered[i]] | i in CIRCUITS];
 
+
 % ====================================================
 % ================ MODEL CONSTRAINTS =================
 % ====================================================
@@ -66,66 +67,52 @@ constraint forall (i in CIRCUITS) (
 );
 
 % ============= Largest circuit on (0,0) =============
-int: largest_circuit_index = arg_max([hor_dim_ord[i]*ver_dim_ord[i] | i in CIRCUITS]);
-constraint (circuitx[largest_circuit_index] == 0) /\ (circuity[largest_circuit_index] == 0);
+% int: largest_circuit_index = arg_max([hor_dim_ord[i]*ver_dim_ord[i] | i in CIRCUITS]);
+% constraint (circuitx[largest_circuit_index] == 0) /\ (circuity[largest_circuit_index] == 0);
 
-% ============== S.B. on x and y axis ================ => incompatible
-% constraint symmetry_breaking_constraint (
-% 	lex_greatereq(circuitx, circuitx_sym)
-% );
-% constraint symmetry_breaking_constraint (
-% 	lex_lesseq(circuity, circuity_sym)
-% );
+% ============== S.B. on x and y axis ================
+constraint symmetry_breaking_constraint (
+	lex_lesseq(circuitx, circuitx_sym)
+);
+constraint symmetry_breaking_constraint (
+	lex_lesseq(circuity, circuity_sym)
+);
+
+% => Seems better to keep xy symmetries than larger circuit on (0,0)
 
 % =========== S.B. on 2 stacking circuits ============
 
 predicate two_stack_ver(int: i, int: j) = (
-	((circuitx[i] == circuitx[j]) /\ hor_dim_ord[i] == hor_dim_ord[j] /\ ver_dim_ord[i] + ver_dim_ord[j] == max([circuity[i]+ver_dim_ord[i],circuity[j]+ver_dim_ord[j]]) - min([circuity[i],circuity[j]])) -> 
-			(ver_dim_ord[i]>=ver_dim_ord[j] <-> circuity[i] < circuity[j])
+	((circuitx[i] == circuitx[j]) /\ hor_dim_ord[i] == hor_dim_ord[j] /\ ver_dim_ord[i] + ver_dim_ord[j] == max([circuity[i]+ver_dim_ord[i],circuity[j]+ver_dim_ord[j]]) - min([circuity[i],circuity[j]])) -> circuity[i] < circuity[j]
 );
 
 predicate two_stack_hor(int: i, int: j) = (
-	((circuity[i] == circuity[j]) /\ ver_dim_ord[i] == ver_dim_ord[j] /\ hor_dim_ord[i] + hor_dim_ord[j] == max([circuitx[i]+hor_dim_ord[i],circuitx[j]+hor_dim_ord[j]]) - min([circuitx[i],circuitx[j]])) -> 
-			(hor_dim_ord[i]>=hor_dim_ord[j] <-> circuitx[i] < circuitx[j])
+	((circuity[i] == circuity[j]) /\ ver_dim_ord[i] == ver_dim_ord[j] /\ hor_dim_ord[i] + hor_dim_ord[j] == max([circuitx[i]+hor_dim_ord[i],circuitx[j]+hor_dim_ord[j]]) - min([circuitx[i],circuitx[j]])) -> circuitx[i] < circuitx[j]
 );
 
 constraint symmetry_breaking_constraint (
-	forall (i,j in CIRCUITS where i<j /\ not has_element(largest_circuit_index, [i,j])) (two_stack_ver(i,j))
+	forall (i,j in CIRCUITS where i<j) (two_stack_ver(i,j))
 );
 
 constraint symmetry_breaking_constraint (
-	forall (i,j in CIRCUITS where i<j /\ not has_element(largest_circuit_index, [i,j])) ( two_stack_hor(i,j) )
+	forall (i,j in CIRCUITS where i<j) ( two_stack_hor(i,j) )
 );
 
 % ============ S.B. on 3 circuit blocks ==============
-constraint symmetry_breaking_constraint (
-	forall (i,j,k in CIRCUITS where i!=j /\ j!=k /\ not has_element(largest_circuit_index, [i,j,k]))(
-		( (circuity[i] == circuity[j]) /\ ver_dim_ord[i] == ver_dim_ord[j] /\ hor_dim_ord[i] + hor_dim_ord[j] == max([circuitx[i]+hor_dim_ord[i],circuitx[j]+hor_dim_ord[j]]) - min([circuitx[i],circuitx[j]]) /\ circuitx[k] == min( [circuitx[i],circuitx[j]]) /\ hor_dim_ord[k] == hor_dim_ord[i] + hor_dim_ord[j] /\ ver_dim_ord[k] + ver_dim_ord[i] == max([circuity[k]+ver_dim_ord[k],circuity[i]+ver_dim_ord[i]]) - min([circuity[k],circuity[i]]))
-			-> circuity[k] < circuity[i]
-	)
-);
+% constraint symmetry_breaking_constraint (
+% 	forall (i,j,k in CIRCUITS where i!=j /\ j!=k)(
+% 		( (circuity[i] == circuity[j]) /\ ver_dim_ord[i] == ver_dim_ord[j] /\ hor_dim_ord[i] + hor_dim_ord[j] == max([circuitx[i]+hor_dim_ord[i],circuitx[j]+hor_dim_ord[j]]) - min([circuitx[i],circuitx[j]]) /\ circuitx[k] == min( [circuitx[i],circuitx[j]]) /\ hor_dim_ord[k] == hor_dim_ord[i] + hor_dim_ord[j] /\ ver_dim_ord[k] + ver_dim_ord[i] == max([circuity[k]+ver_dim_ord[k],circuity[i]+ver_dim_ord[i]]) - min([circuity[k],circuity[i]]))
+% 			-> circuity[k] < circuity[i]
+% 	)
+% );
 
-constraint symmetry_breaking_constraint (
-	forall (i,j,k in CIRCUITS where i!=j /\ j!=k /\ not has_element(largest_circuit_index, [i,j,k]))(
-		(((circuitx[i] == circuitx[j]) /\ hor_dim_ord[i] == hor_dim_ord[j] /\ ver_dim_ord[i] + ver_dim_ord[j] == max([circuity[i]+ver_dim_ord[i],circuity[j]+ver_dim_ord[j]]) - min([circuity[i],circuity[j]])) /\ circuity[k] == min([circuity[i], circuity[j]]) /\ ver_dim_ord[k] == ver_dim_ord[i] + ver_dim_ord[j] /\ hor_dim_ord[k] + hor_dim_ord[i] == max([circuitx[k]+hor_dim_ord[k],circuitx[i]+hor_dim_ord[i]]) - min([circuitx[k],circuitx[i]]))
-		-> circuitx[k] < circuitx[i]
-	)
-);
+% constraint symmetry_breaking_constraint (
+% 	forall (i,j,k in CIRCUITS where i!=j /\ j!=k)(
+% 		(((circuitx[i] == circuitx[j]) /\ hor_dim_ord[i] == hor_dim_ord[j] /\ ver_dim_ord[i] + ver_dim_ord[j] == max([circuity[i]+ver_dim_ord[i],circuity[j]+ver_dim_ord[j]]) - min([circuity[i],circuity[j]])) /\ circuity[k] == min([circuity[i], circuity[j]]) /\ ver_dim_ord[k] == ver_dim_ord[i] + ver_dim_ord[j] /\ hor_dim_ord[k] + hor_dim_ord[i] == max([circuitx[k]+hor_dim_ord[k],circuitx[i]+hor_dim_ord[i]]) - min([circuitx[k],circuitx[i]]))
+% 		-> circuitx[k] < circuitx[i]
+% 	)
+% );
 
-
-constraint symmetry_breaking_constraint (
-	forall (i,j,k in CIRCUITS where i!=j /\ j!=k /\ not has_element(largest_circuit_index, [i,j,k]))(
-		( (circuity[i] == circuity[j]) /\ ver_dim_ord[i] == ver_dim_ord[j] /\ hor_dim_ord[i] + hor_dim_ord[j] == max([circuitx[i]+hor_dim_ord[i],circuitx[j]+hor_dim_ord[j]]) - min([circuitx[i],circuitx[j]]) /\ circuitx[k] == min( [circuitx[i],circuitx[j]]) /\ hor_dim_ord[k] == hor_dim_ord[i] + hor_dim_ord[j] /\ ver_dim_ord[k] + ver_dim_ord[i] == max([circuity[k]+ver_dim_ord[k],circuity[i]+ver_dim_ord[i]]) - min([circuity[k],circuity[i]]))
-			-> circuity[k] < circuity[i]
-	)
-);
-
-constraint symmetry_breaking_constraint (
-	forall (i,j,k in CIRCUITS where i!=j /\ j!=k /\ not has_element(largest_circuit_index, [i,j,k]))(
-		(((circuitx[i] == circuitx[j]) /\ hor_dim_ord[i] == hor_dim_ord[j] /\ ver_dim_ord[i] + ver_dim_ord[j] == max([circuity[i]+ver_dim_ord[i],circuity[j]+ver_dim_ord[j]]) - min([circuity[i],circuity[j]])) /\ circuity[k] == min([circuity[i], circuity[j]]) /\ ver_dim_ord[k] == ver_dim_ord[i] + ver_dim_ord[j] /\ hor_dim_ord[k] + hor_dim_ord[i] == max([circuitx[k]+hor_dim_ord[k],circuitx[i]+hor_dim_ord[i]]) - min([circuitx[k],circuitx[i]]))
-		-> circuitx[k] < circuitx[i]
-	)
-);
 
 % ====================================================
 % ===================== SEARCH =======================
@@ -134,7 +121,7 @@ constraint symmetry_breaking_constraint (
 solve
 	:: seq_search( [
 		int_search(circuity, input_order, indomain_min),
-		int_search(circuitx, input_order, indomain_random) ] )
+		int_search(circuitx, input_order, indomain_min) ] )
 	:: restart_luby(150)
 	minimize height;
 
