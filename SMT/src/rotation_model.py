@@ -50,32 +50,26 @@ def solve_task(ins_index):
 			And(dim1[i] == hor_dim[i], dim2[i] == ver_dim[i]) )
 	) for i in range(n_circuits)]
 	
+	configuration.add("largest block on bottom left")
+	largest_block_index = np.argmax([dim1[i]*dim2[i] for i in range(n_circuits)])
+	constraints += [ And(
+						circuitx[largest_block_index] == 0,
+						circuity[largest_block_index] == 0 )]
+	
+	configuration.add("diffn")
+	constraints += diffn(circuitx, circuity, hor_dim, ver_dim)
+	
 	configuration.add("border constraints")
 	constraints += [ And(0 <= circuitx[i], circuitx[i] + hor_dim[i] <= width,
 						0 <= circuity[i], circuity[i] + ver_dim[i] <= height)
 						for i in range(n_circuits) #if i != largest_block_index
 					]
 	
-	configuration.add("diffn")
-	constraints += diffn(circuitx, circuity, hor_dim, ver_dim)
-	
 	# ================ Implied constraints =============== => slower
 	# configuration.add("cumulative")
 	# constraints += cumulative(circuitx, hor_dim, ver_dim, height)
 	# constraints += cumulative(circuity, ver_dim, hor_dim, width)
 	
-
-	# ====================================================
-	# ========== SYMMETRY BREAKING CONSTRAINTS ===========
-	# ====================================================
-	
-	# ============= Largest circuit on (0,0) ============= => slower
-	# configuration.add("largest block on bottom left")
-	# largest_block_index = np.argmax([hor_dim[i]*ver_dim[i] for i in range(n_circuits)])
-	# constraints += [ And(
-	# 					circuitx[largest_block_index] == 0,
-	# 					circuity[largest_block_index] == 0 )]
-
 	# ============== S.B. on x and y axis ================ => slower
 	# configuration.add("x and y symmetry with lex order")
 	# circuitx_sym = [Int(f"circuitx_sym_{i+1}") for i in range(n_circuits)]
@@ -129,7 +123,7 @@ def solve_task(ins_index):
 
 if __name__ == "__main__":
 	
-	n_instances = 10
+	n_instances = 20
 
 	global configuration
 	configuration = set()

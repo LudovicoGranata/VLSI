@@ -26,44 +26,21 @@ def solve_task(ins_index):
 	# ================ DECISION VARIABLES ================
 	# ====================================================
 
-	circuitx = [Int(f"circuitx_{i+1}") for i in range(n_circuits)]
-	circuity = [Int(f"circuity_{i+1}") for i in range(n_circuits)]
+	circuitx = [Int(f"x_{i+1}") for i in range(n_circuits)]
+	circuity = [Int(f"y_{i+1}") for i in range(n_circuits)]
 
 	height = Int("height")
 
 	constraints = []
-
-	# ====================================================
-	# ================ MODEL CONSTRAINTS =================
-	# ====================================================
-
-	configuration.add("border constraints")
-	constraints += [ And(0 <= circuitx[i], circuitx[i] + hor_dim[i] <= width,
-						0 <= circuity[i], circuity[i] + ver_dim[i] <= height)
-						for i in range(n_circuits) #if i != largest_block_index
-					]
 	
-	configuration.add("diffn")
-	constraints += diffn(circuitx, circuity, hor_dim, ver_dim)
-	
-	# ================ Implied constraints ===============
-	# configuration.add("cumulative")
-	# constraints += cumulative(circuitx, hor_dim, ver_dim, height)
-	# constraints += cumulative(circuity, ver_dim, hor_dim, width)
-	
+	# !!! DO NOT CHANGE THE ORDER OF THE CONSTRAINTS: this is the faster order found up to now
 
-	# ====================================================
-	# ========== SYMMETRY BREAKING CONSTRAINTS ===========
-	# ====================================================
-	
-	# ============= Largest circuit on (0,0) ============= => slower
-	# configuration.add("largest block on bottom left")
-	# largest_block_index = np.argmax([hor_dim[i]*ver_dim[i] for i in range(n_circuits)])
-	# constraints += [ And(
-	# 					circuitx[largest_block_index] == 0,
-	# 					circuity[largest_block_index] == 0 )]
+	configuration.add("largest block on bottom left")
+	largest_block_index = np.argmax([hor_dim[i]*ver_dim[i] for i in range(n_circuits)])
+	constraints += [ And(
+						circuitx[largest_block_index] == 0,
+						circuity[largest_block_index] == 0 )]
 
-	# ============== S.B. on x and y axis ================ => slower
 	# configuration.add("x and y symmetry with lex order")
 	# circuitx_sym = [Int(f"circuitx_sym_{i+1}") for i in range(n_circuits)]
 	# circuity_sym = [Int(f"circuity_sym_{i+1}") for i in range(n_circuits)]
@@ -74,7 +51,9 @@ def solve_task(ins_index):
 	# 	for i in range(n_circuits)
 	# ]
 
-	# =========== S.B. on 2 stacking circuits ============ => slower
+	configuration.add("diffn")
+	constraints += diffn(circuitx, circuity, hor_dim, ver_dim)
+
 	# configuration.add("2 stack vertical constraint")
 	# for i in range(n_circuits):
 	# 	for j in range(i,n_circuits):
@@ -84,12 +63,30 @@ def solve_task(ins_index):
 	# 			circuity[i] < circuity[j]
 	# 		)]
 
+	configuration.add("border constraints")
+	constraints += [ And(0 <= circuitx[i], circuitx[i] + hor_dim[i] <= width,
+						0 <= circuity[i], circuity[i] + ver_dim[i] <= height)
+						for i in range(n_circuits) # if i != largest_block_index
+					]
+	# constraints += [ And(circuitx[i] >= 0, circuity[i] >= 0) for i in range(n_circuits) ]
+	# constraints += [ max_z3([ circuitx[i] + hor_dim[i] for i in range(n_circuits) ]) <= width ]
+	# constraints += [ max_z3([ circuity[i] + ver_dim[i] for i in range(n_circuits) ]) <= height ]
+
+	# ================ Implied constraints =============== => slower
+	# configuration.add("cumulative")
+	# constraints += cumulative(circuitx, hor_dim, ver_dim, height)
+	# constraints += cumulative(circuity, ver_dim, hor_dim, width)
+
 	opt = Optimize()
 
 	opt.add(constraints)
 	opt.minimize(height)
 	
-	opt.set(timeout=opt_timeout*60*1000)
+	# Try different configurations (how to set threads?)
+	opt.set(timeout = opt_timeout*60*1000)
+	opt.set("maxres.wmax", True)
+	opt.set("optsmt_engine", "symba")
+	opt.set("maxres.add_upper_bound_block", True)
 
 	circuitx_sol = []
 	circuity_sol = []
@@ -118,7 +115,7 @@ if __name__ == "__main__":
 	global configuration
 	configuration = set()
 	global opt_timeout
-	opt_timeout = 1 # indicate minutes
+	opt_timeout = 10 # indicate minutes
 	solved = 0
 	failed_instances = []
 	start_time = time.time()
@@ -134,7 +131,6 @@ if __name__ == "__main__":
 			failed_instances.append(i)
 		print()
 
-
 	print("Configuration:")
 	for e in configuration:
 		print(f"\t- {e}")
@@ -142,3 +138,14 @@ if __name__ == "__main__":
 	print(f"Solved instances: {solved}/{n_instances}")
 	print("Total time: {:.5f} seconds".format(time.time() - start_time))
 	print(f"Failed instances: {failed_instances}")
+
+
+# ===> Best result up to now
+# Configuration:
+#         - border constraints
+#         - largest block on bottom left
+#         - diffn
+# Timeout: 10 minutes
+# Solved instances: 25/40
+# Total time: 9970.67824 seconds
+# Failed instances: [11, 16, 19, 21, 22, 25, 30, 32, 34, 35, 36, 37, 38, 39, 40]
