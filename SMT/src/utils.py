@@ -24,18 +24,26 @@ def diffn(x, y, dx, dy):
 	
 	return constraints
 
-# TODO improve speed of execution. Too slow
 def cumulative(s, d, r, b):
 	constraints = []
 
 	for j in range(len(s)):
-		my_sum = Sum([])
-		
-		for i in range(len(s)):
-			my_sum += If(And(i!=j,s[i] <= s[j], s[j] < s[i] + d[i]),r[i],0)
-		
+			
+		my_sum = Sum([ If(And(i!=j,s[i] <= s[j], s[j] < s[i] + d[i]), r[i], 0) for i in range(len(s))])
 		constraints += [ 
 			b >= r[j] + my_sum
 		]
+
+	return constraints
+
+def lex_lesseq(x, y):
+	constraints = []
+
+	constraints += [ x[0] <= y[0] ]
+	
+	for i in range(1, len(x)):
+		constraints += [ Implies(
+			And([ x[j] == y[j] for j in range(i) ]) ,
+			x[i] <= y[i]) ]
 
 	return constraints
