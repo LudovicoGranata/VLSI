@@ -55,3 +55,8 @@ def plot(dir, instance, out):
 
   # Here we export the plot:
   plt.savefig(out+"/"+instance.split(".")[0]+"_out.png")
+  
+  # Each figure must be explicitly closed to avoid
+  # unnecessarily consuming too much memory (and
+  # causing a related RuntimeWarning):
+  plt.close()
