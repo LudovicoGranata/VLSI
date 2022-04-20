@@ -1,10 +1,5 @@
 import datetime
-
-# For CP solving:
 import minizinc as mz
-
-# For SAT solving:
-from sat_utils import *
 import plot
 
 
@@ -37,20 +32,7 @@ def solve_cp(model_path):
     else:
         print("no instance solved")
 
-def solve_SAT():
-    print("[SAT solver]")
-
-    for i in range(1, 41):
-        print(f">>> Trying to solve instance #{i}...")
-        try:
-            solution = solve_SAT_instance(i)
-            print(solution)
-        except Exception as error:
-            print(f"Solver failed on instance #{i}. Error: {error}")
-        print()
-
 
 if __name__ == '__main__':
     solve_cp("./CP/src/parsa/base_model.mzn")
-    #solve_SAT()
     
