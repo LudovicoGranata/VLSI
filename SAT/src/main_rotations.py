@@ -1,4 +1,4 @@
-from sat_model import *
+from sat_model_rotations import *
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':

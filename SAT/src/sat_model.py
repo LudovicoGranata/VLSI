@@ -5,7 +5,7 @@ from math import *
 
 # For SAT solving:
 import z3
-from itertools import combinations
+from itertools import combinations, product
 
 class SAT_Circuit():
     def __init__(self, x = 0, y = 0):
@@ -35,7 +35,10 @@ class SAT_Model():
 
     @staticmethod
     def range_intersection(range_a, range_b):
-        return set(range_a).intersection(range_b)
+        if range_a.step == range_b.step:
+            return range(max(range_a.start, range_b.start), min(range_a.stop, range_b.stop), range_a.step)
+        else:
+            return set(range_a).intersection(range_b)
 
     def get_range_for_block(self, i, dimension='width'):
         if dimension == 'width':
@@ -95,34 +98,54 @@ class SAT_Model():
         # only those variables that will be included in at least
         # one constraint!
         v = [[[z3.Bool(f'v{i}_[{n}, {m}]') for m in height_range] for n in width_range] for i in blocks_range]
-        
-        constraints = []
 
         # Constraint #1: each block must have exactly one X coordinate and exactly one Y coordinate
         for i in blocks_range:
-            position_for_block_i = [v[i][n][m] for n in self.get_range_for_block(i, 'width') for m in self.get_range_for_block(i, 'height')]
-            constraints.extend(SAT_Model.exactly_one(position_for_block_i))
+            allowed_positions_for_i = [v[i][n][m] for n in self.get_range_for_block(i, 'width') for m in self.get_range_for_block(i, 'height')]
+            s.add(SAT_Model.exactly_one(allowed_positions_for_i))
 
         # Constraint #2: each pair of blocks cannot overlap
-        for i in blocks_range:
-            for n in self.get_range_for_block(i, 'width'):
-                for m in self.get_range_for_block(i, 'height'):
-                    for j in blocks_range:
-                        if i < j:
-                            forbidden_width_range = range(n - self.block_widths[j] + 1, (n + self.block_widths[i] - 1) + 1)
-                            forbidden_height_range = range(m - self.block_heights[j] + 1, (m + self.block_heights[i] - 1) + 1)
+        for i, j in combinations(blocks_range, 2):
+            width_range_for_j = self.get_range_for_block(j, 'width')
+            height_range_for_j = self.get_range_for_block(j, 'height')
 
-                            forbidden_P_values = SAT_Model.range_intersection(forbidden_width_range, self.get_range_for_block(j, 'width'))
-                            forbidden_Q_values = SAT_Model.range_intersection(forbidden_height_range, self.get_range_for_block(j, 'height'))
+            for n, m in product(self.get_range_for_block(i, 'width'), self.get_range_for_block(i, 'height')):
+                forbidden_width_range = range(n - self.block_widths[j] + 1, (n + self.block_widths[i] - 1) + 1)
+                forbidden_height_range = range(m - self.block_heights[j] + 1, (m + self.block_heights[i] - 1) + 1)
 
-                            constraints.extend([z3.Implies(v[i][n][m], z3.Not(v[j][p][q])) for p in forbidden_P_values for q in forbidden_Q_values])
-                            #constraints.append(z3.Implies(v[i][n][m], z3.Not(z3.Or([v[j][p][q] for p in forbidden_P_values for q in forbidden_Q_values]))))
-        
+                forbidden_P_values = SAT_Model.range_intersection(forbidden_width_range, width_range_for_j)
+                forbidden_Q_values = SAT_Model.range_intersection(forbidden_height_range, height_range_for_j)
+
+                s.add([z3.Implies(v[i][n][m], z3.Not(v[j][p][q])) for p in forbidden_P_values for q in forbidden_Q_values])
+
+        # Symmetry-breaking constraints:
+        for i, j in combinations(blocks_range, 2):
+            width_range_for_j = self.get_range_for_block(j, 'width')
+            height_range_for_j = self.get_range_for_block(j, 'height')
+
+            for n, m in product(self.get_range_for_block(i, 'width'), self.get_range_for_block(i, 'height')):
+                if self.block_widths[i] == self.block_widths[j]:  # The two blocks could be stacked vertically
+                    if areas[i] >= areas[j]:
+                        if (m - self.block_heights[j]) in height_range_for_j:
+                            s.add(z3.Implies(v[i][n][m], z3.Not(v[j][n][m - self.block_heights[j]])))
+                    else:
+                        if (m + self.block_heights[i]) in height_range_for_j:
+                            s.add(z3.Implies(v[i][n][m], z3.Not(v[j][n][m + self.block_heights[i]])))
+                
+                if self.block_heights[i] == self.block_heights[j]:  # The two blocks could be stacked horizontally
+                    if areas[i] >= areas[j]:
+                        if (n - self.block_widths[j]) in width_range_for_j:
+                            s.add(z3.Implies(v[i][n][m], z3.Not(v[j][n - self.block_widths[j]][m])))
+                    else:
+                        if (n + self.block_widths[i]) in width_range_for_j:
+                            s.add(z3.Implies(v[i][n][m], z3.Not(v[j][n + self.block_widths[i]][m])))
+
         # Constraint #3: the biggest block must be in position (0, 0)
         largest_block_index = np.argmax(areas)
-        constraints.append(v[largest_block_index][0][0])
+        s.add(v[largest_block_index][0][0])
 
-        s.add(constraints)
+        constraints_production_time = time.time() - start
+        print(f'Constraints production time: {round(constraints_production_time, 3)} seconds.')
 
         num_threads = 8
         s.set("sat.threads", num_threads - 1)
@@ -132,7 +155,7 @@ class SAT_Model():
         s.set("sat.lookahead_simplify", True)
         s.set("sat.lookahead.use_learned", True)
         
-        s.set(timeout=int(5*60 - (time.time() - start))*1000)  # 5 minutes
+        s.set(timeout=int(5*60 - constraints_production_time)*1000)  # 5 minutes
         status = s.check()
         end = time.time()
         if status == z3.sat:
@@ -153,10 +176,13 @@ class SAT_Model():
             
             self.reached_height = max([self.solution[i].y + self.block_heights[i] for i in blocks_range])
 
-            print(f'Elapsed time: {round(end - start, 3)} seconds.')
+            elapsed_time = end - start
+            print(f'Total elapsed time: {round(elapsed_time, 3)} seconds.')
             self.save_solution()
 
             plot('./SAT/out', f'ins-{self.instance_idx}.txt', './SAT/out/images')
+
+            return elapsed_time
         elif status == z3.unsat:
             raise Exception('unSATisfiable formula.')
         elif status == z3.unknown:
