@@ -1,7 +1,6 @@
 import numpy as np
 from plot import *
 import time
-from math import *
 
 # For SAT solving:
 import z3
