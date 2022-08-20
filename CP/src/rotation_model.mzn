@@ -16,33 +16,39 @@ array[CIRCUITS] of int : ver_dim = [circuit_dimensions_ord[c,2] | c in CIRCUITS]
 
 %================================================
 
+%=============Rotation===========================
+array[CIRCUITS] of var bool : rotated; % true if the circuit is rotated
+
 
 %====Upper and Lower Bound for the height=======================
-int: max_height = sum (ver_dim);
+int: max_height = sum ([ max(circuit_dimensions_ord[c,1], circuit_dimensions_ord[c,2])| c in CIRCUITS]);
 int: min_height = (sum([hor_dim[c] * ver_dim[c] | c in CIRCUITS]) div width);
 
 %==============Solution=========================
 array[CIRCUITS] of var 0..width-min(hor_dim): x_pos; %bottom left x
 array[CIRCUITS] of var 0..max_height-min(ver_dim): y_pos; %bottom left y
 
-%================================================
+%=================================================
+
 %===========Objective to minimize=================
-var min_height..max_height: height = max([y_pos[c] + ver_dim[c]| c in CIRCUITS]);
+var min_height..max_height: height = max([ if not rotated[c] then (y_pos[c] + ver_dim[c]) else (y_pos[c] + hor_dim[c]) endif| c in CIRCUITS]);
 %=================================================
 
 %============Main Constraints=====================
+array[CIRCUITS] of var int :new_hor_dim = [if not rotated[c] then hor_dim[c] else ver_dim[c] endif | c in CIRCUITS];
+array[CIRCUITS] of var int :new_ver_dim = [if not rotated[c] then ver_dim[c] else hor_dim[c] endif| c in CIRCUITS];
 
-constraint diffn ( x_pos, y_pos, hor_dim, ver_dim)::domain; 
-constraint forall (c in CIRCUITS) (x_pos[c] + hor_dim[c] <= width)::domain;
-constraint forall (c in CIRCUITS)(y_pos[c] + ver_dim[c] <= height)::domain;
+constraint diffn ( x_pos, y_pos, new_hor_dim, new_ver_dim)::domain; 
+constraint forall (c in CIRCUITS) (x_pos[c] + new_hor_dim[c] <= width)::domain;
+constraint forall (c in CIRCUITS)(y_pos[c] + new_ver_dim[c] <= height)::domain;
 
 %=================================================
 
 
 %===========Implied Constraints====================
 
-constraint cumulative(y_pos, ver_dim, hor_dim, width);
-constraint cumulative(x_pos, hor_dim, ver_dim,  height);
+constraint cumulative(y_pos, new_ver_dim, new_hor_dim, width);
+constraint cumulative(x_pos, new_hor_dim, new_ver_dim,  height);
 
 %==================================================
 
@@ -56,7 +62,7 @@ constraint x_pos[1] = 0;
 constraint y_pos[1] = 0;
 
 %====two pieces symmetry
-constraint symmetry_breaking_constraint(forall (c,k in CIRCUITS where c<k /\ hor_dim[c] == hor_dim[k])( x_pos[c] == x_pos[k] /\ ver_dim[c] + ver_dim[k] == max([y_pos[c] + ver_dim[c], y_pos[k] + ver_dim[k]]) - min([y_pos[c], y_pos[k]]) -> y_pos[c] < y_pos[k]));
+constraint symmetry_breaking_constraint(forall (c,k in CIRCUITS where c<k /\ new_hor_dim[c] == new_hor_dim[k])( x_pos[c] == x_pos[k] /\ new_ver_dim[c] + new_ver_dim[k] == max([y_pos[c] + new_ver_dim[c], y_pos[k] + new_ver_dim[k]]) - min([y_pos[c], y_pos[k]]) -> y_pos[c] < y_pos[k]));
 
 
 %==================================================
@@ -87,7 +93,7 @@ solve :: search_ann_x
 
 %================Output============================
 output [ show(width) ++ " " ++ show(height) ++ " \n" ++ show(n_circuits)]
-++[ "\n" ++ show(hor_dim[c])++ " " ++ show(ver_dim[c])++ " " ++ show(x_pos[c]) ++ " "++ show(y_pos[c])|
+++[ "\n" ++ show(new_hor_dim[c])++ " " ++ show(new_ver_dim[c])++ " " ++ show(x_pos[c]) ++ " "++ show(y_pos[c])|
 c in CIRCUITS ];
 
 %==================================================

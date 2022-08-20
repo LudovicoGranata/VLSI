@@ -14,7 +14,7 @@ def solve_cp(model_path):
         VLSI_model = mz.Model(model_path)
         VLSI_model.add_file("./CP/ins/ins-"+str(i)+".dzn")
         instance = mz.Instance(gecode, VLSI_model)
-        result = instance.solve(timeout=datetime.timedelta(seconds=30))
+        result = instance.solve(timeout=datetime.timedelta(seconds=300))
         #print(result)
         if result.status == mz.result.Status.OPTIMAL_SOLUTION:
             solving_time = ((result.statistics['time'].microseconds / (10 ** 6)) + result.statistics['time'].seconds)
@@ -34,5 +34,5 @@ def solve_cp(model_path):
 
 
 if __name__ == '__main__':
-    solve_cp("./CP/src/parsa/base_model.mzn")
+    solve_cp("./CP/src/rotation_model.mzn")
     
