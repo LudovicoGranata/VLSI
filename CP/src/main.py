@@ -10,7 +10,7 @@ def solve_cp(model_path):
 
 	for i in range(1, tot_instances + 1):
 
-		print(f"Instance {i}/{tot_instances}...")
+		print(f"Instance {i}/{tot_instances}")
 
 		VLSI_model = mz.Model(model_path)
 		VLSI_model.add_file("./CP/ins/ins-"+str(i)+".dzn")
@@ -20,7 +20,7 @@ def solve_cp(model_path):
 								processes = 8,
 								optimisation_level = 1)
 		
-		#print(result)
+		print(result)
 
 		if result.status == mz.result.Status.OPTIMAL_SOLUTION:
 			solved_instances+=1
@@ -28,7 +28,7 @@ def solve_cp(model_path):
 			solving_time = ((result.statistics['time'].microseconds / (10 ** 6)) + result.statistics['time'].seconds)
 			avg_time += solving_time
 			print("Solved!")
-			print("Time:" + str(round(solving_time, 3)))
+			print(f"Elapsed time: {str(round(solving_time, 3))}")
 			
 			with open('./CP/out/ins-' + str(i) + '.txt', 'w') as writefile:
 				writefile.write(str(result))
@@ -36,7 +36,8 @@ def solve_cp(model_path):
 			plot.plot("./CP/out/","ins-"+str(i)+".txt","./CP/out/images")
 		else:
 			print("Timeout!")
-			print()
+		
+		print()
 	
 	if solved_instances!=0:
 		avg_time = avg_time/solved_instances
