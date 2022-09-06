@@ -18,6 +18,13 @@ def read_task(ins_index):
 
 	return width, n_circuits, hor_dim, ver_dim
 
+def save_solution(instance_idx, grid_width, reached_height, n_circuits, block_widths, block_heights, block_pos_x, block_pos_y):
+	with open(f'./SMT/out/ins-{instance_idx}.txt', 'w') as f_result:
+		f_result.write(f'{grid_width} {reached_height}\n')
+		f_result.write(f'{n_circuits}\n')
+		for i in range(n_circuits):
+			f_result.write(f'{block_widths[i]} {block_heights[i]} {block_pos_x[i]} {block_pos_y[i]}\n')
+
 def solve_task(ins_index):
 	
 	width, n_circuits, hor_dim, ver_dim = read_task(ins_index)
@@ -100,10 +107,8 @@ def solve_task(ins_index):
 		height_sol = model.evaluate(height).as_string()
 
 		print(f"instance - {ins_index}")
-		print(circuitx_sol)
-		print(circuity_sol)
-		print(height_sol)
-		# print(opt.assertions)
+
+		save_solution(ins_index, width, int(height_sol), n_circuits, hor_dim, ver_dim, circuitx_sol, circuity_sol)
 
 		return 0
 	return -1 # -1 error is for timeout
@@ -115,7 +120,7 @@ if __name__ == "__main__":
 	global configuration
 	configuration = set()
 	global opt_timeout
-	opt_timeout = 10 # indicate minutes
+	opt_timeout = 5 # indicate minutes
 	solved = 0
 	failed_instances = []
 	start_time = time.time()
