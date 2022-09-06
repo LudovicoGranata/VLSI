@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import os
 
 def get_cmap(n, name = 'hsv'):
   return plt.cm.get_cmap(name, n)
@@ -9,7 +10,7 @@ def plot(dir, instance, out):
   plt.rcParams['axes.ymargin'] = 0
 
   # Preparing a new figure for plotting:
-  plt.figure(figsize=(8, 8))
+  plt.figure(figsize=(12, 12))
   plt.title(f'Solution for: "{instance}"')
   plt.grid(visible=True, linestyle='-')
   plt.axis("scaled")
@@ -37,10 +38,20 @@ def plot(dir, instance, out):
         cmap = get_cmap(n_circuits)
       else:
         # Building a rectangle based on information specified in the instance solution:
-        c_width, c_height, c_bottom_left_x, c_bottom_left_y =  line.split()
-        circuit = plt.Rectangle((int(c_bottom_left_x), int(c_bottom_left_y)),
-          width=int(c_width), height=int(c_height),
-          facecolor=cmap(i-2), edgecolor="black", linewidth=3)
+        tokens = line.split()
+        rotated = False
+        if len(tokens) == 5:
+          rotated = (tokens[4] == "R")
+        c_width, c_height, c_bottom_left_x, c_bottom_left_y =  tokens[:4]
+
+        if not rotated:
+          circuit = plt.Rectangle((int(c_bottom_left_x), int(c_bottom_left_y)),
+                                   width=int(c_width), height=int(c_height),
+                                   facecolor=cmap(i-2), edgecolor="black", linewidth=3)
+        else:
+          circuit = plt.Rectangle((int(c_bottom_left_x), int(c_bottom_left_y)),
+                                   width=int(c_height), height=int(c_width),
+                                   facecolor=cmap(i-2), edgecolor="black", linewidth=3)
         
         # Adding a text annotation to each rectangle:
         ax.add_artist(circuit)
@@ -51,6 +62,7 @@ def plot(dir, instance, out):
         
         # Effectively adding the rectangle to the plot:
         ax.add_patch(circuit)
+
       i += 1
 
   # Here we export the plot:
@@ -60,3 +72,25 @@ def plot(dir, instance, out):
   # unnecessarily consuming too much memory (and
   # causing a related RuntimeWarning):
   plt.close()
+
+
+def plot_results(directory):
+  for filename in os.listdir(directory):
+    f = os.path.join(directory, filename)
+
+    if os.path.isfile(f):
+      plot(directory, filename, os.path.join(directory, 'images'))
+
+
+if __name__ == "__main__":
+  print('Plotting results from CP models...')
+  plot_results('./CP/out')
+  plot_results('./CP/out_rot')
+
+  print('Plotting results from SAT models...')
+  plot_results('./SAT/out')
+  plot_results('./SAT/out_rot')
+
+  print('Plotting results from SMT models...')
+  plot_results('./SMT/out')
+  plot_results('./SMT/out_rot')

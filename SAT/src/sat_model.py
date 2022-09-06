@@ -1,5 +1,4 @@
 import numpy as np
-from plot import *
 import time
 
 # For SAT solving:
@@ -178,8 +177,6 @@ class SAT_Model():
             elapsed_time = end - start
             print(f'Total elapsed time: {round(elapsed_time, 3)} seconds.')
             self.save_solution()
-
-            plot('./SAT/out', f'ins-{self.instance_idx}.txt', './SAT/out/images')
 
             return elapsed_time
         elif status == z3.unsat:
