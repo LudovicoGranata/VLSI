@@ -1,99 +1,145 @@
-
 include "globals.mzn";
 include "gecode.mzn";
 
-%==============Data==============================
-int: n_circuits;   
-set of int: CIRCUITS = 1..n_circuits;  
-int: width; 
+% ====================================================
+% ================ PROBLEM PARAMETERS ================
+% ====================================================
+
+int: width;
+int: n_circuits;
+
+set of int: CIRCUITS = 1..n_circuits;
 array[CIRCUITS, 1..2] of int: circuit_dimensions;
-%================================================
-%=============Ordering===========================
-array[CIRCUITS] of int: CIRCUITS_ORDERED = sort_by(CIRCUITS, [-circuit_dimensions[c,1]*circuit_dimensions[c,2] | c in CIRCUITS]);
-array[CIRCUITS, 1..2] of int: circuit_dimensions_ord = array2d(CIRCUITS,1..2,[circuit_dimensions[c, dim]|c in CIRCUITS_ORDERED, dim in 1..2]);
-array[CIRCUITS] of int : hor_dim = [circuit_dimensions_ord[c,1] | c in CIRCUITS];
-array[CIRCUITS] of int : ver_dim = [circuit_dimensions_ord[c,2] | c in CIRCUITS];
 
-%================================================
-
-%=============Rotation===========================
-array[CIRCUITS] of var bool : rotated; % true if the circuit is rotated
+% ============= Conversion to my model ===============
+array[CIRCUITS] of int: hor_dim = [circuit_dimensions[i,1] | i in CIRCUITS];
+array[CIRCUITS] of int: ver_dim = [circuit_dimensions[i,2] | i in CIRCUITS];
 
 
-%====Upper and Lower Bound for the height=======================
-int: max_height = sum ([ max(circuit_dimensions_ord[c,1], circuit_dimensions_ord[c,2])| c in CIRCUITS]);
-int: min_height = (sum([hor_dim[c] * ver_dim[c] | c in CIRCUITS]) div width);
+% ====================================================
+% ================ DECISION VARIABLES ================
+% ====================================================
 
-%==============Solution=========================
-array[CIRCUITS] of var 0..width-min(hor_dim): x_pos; %bottom left x
-array[CIRCUITS] of var 0..max_height-min(ver_dim): y_pos; %bottom left y
+int: max_height = sum( [ max([ver_dim[i], hor_dim[i]]) | i in CIRCUITS] );
+int: min_height = sum([ hor_dim[i] * ver_dim[i] | i in CIRCUITS]) div width;
+set of int: HEIGHT_DOM = min_height..max_height;
 
-%=================================================
+var HEIGHT_DOM: height;
 
-%===========Objective to minimize=================
-var min_height..max_height: height = max([ if not rotated[c] then (y_pos[c] + ver_dim[c]) else (y_pos[c] + hor_dim[c]) endif| c in CIRCUITS]);
-%=================================================
+set of int: CIRCUITX_DOM = 0..width - min( [ min([hor_dim[i], ver_dim[i]]) | i in CIRCUITS ]);
+set of int: CIRCUITY_DOM = 0..max_height - min( [ min([hor_dim[i], ver_dim[i]]) | i in CIRCUITS ]);
+array[CIRCUITS] of var CIRCUITX_DOM: circuitx;
+array[CIRCUITS] of var CIRCUITY_DOM: circuity;
 
-%============Main Constraints=====================
-array[CIRCUITS] of var int :new_hor_dim = [if not rotated[c] then hor_dim[c] else ver_dim[c] endif | c in CIRCUITS];
-array[CIRCUITS] of var int :new_ver_dim = [if not rotated[c] then ver_dim[c] else hor_dim[c] endif| c in CIRCUITS];
+% ================= Rotation variables ===============
+int: max_dim = max(hor_dim ++ ver_dim);
+int: min_dim = min(hor_dim ++ ver_dim);
 
-constraint diffn ( x_pos, y_pos, new_hor_dim, new_ver_dim)::domain; 
-constraint forall (c in CIRCUITS) (x_pos[c] + new_hor_dim[c] <= width)::domain;
-constraint forall (c in CIRCUITS)(y_pos[c] + new_ver_dim[c] <= height)::domain;
+set of int: DIM_1_DOM = min_dim..min([max_dim, width]);
+set of int: DIM_2_DOM = min_dim..max_dim;
 
-%=================================================
+array[CIRCUITS] of var DIM_1_DOM: dim_1; % horizontal dimension
+array[CIRCUITS] of var DIM_2_DOM: dim_2; % vertical dimension
+array[CIRCUITS] of var bool: rotated;
 
+array[CIRCUITS] of int: circuits_ordered = sort_by(CIRCUITS,
+	[- hor_dim[i]*ver_dim[i] | i in CIRCUITS] );
+array[CIRCUITS] of int: hor_dim_ord = [hor_dim[circuits_ordered[i]] | i in CIRCUITS];
+array[CIRCUITS] of int: ver_dim_ord = [ver_dim[circuits_ordered[i]] | i in CIRCUITS];
 
-%===========Implied Constraints====================
+constraint forall(i in CIRCUITS) ( 
+	( rotated[i] -> (dim_1[i] == ver_dim_ord[i] /\ dim_2[i] == hor_dim_ord[i]) )
+/\	( (not rotated[i]) -> (dim_1[i] == hor_dim_ord[i] /\ dim_2[i] == ver_dim_ord[i]) )
+);
 
-constraint cumulative(y_pos, new_ver_dim, new_hor_dim, width);
-constraint cumulative(x_pos, new_hor_dim, new_ver_dim,  height);
+% ====================================================
+% ================ MODEL CONSTRAINTS =================
+% ====================================================
 
-%==================================================
+height = max([circuity[i]+dim_2[i] | i in CIRCUITS]);
 
-%=============Symmetry breaking constraints========
+constraint diffn(circuitx, circuity, dim_1, dim_2)::domain;
+constraint forall(i in CIRCUITS) (
+	( (circuitx[i] + dim_1[i]) <= width )
+/\	( (circuity[i] + dim_2[i]) <= height)
+);
 
-
-
-
-%the largest block is positioned on the bottom left
-constraint x_pos[1] = 0;
-constraint y_pos[1] = 0;
-
-%====two pieces symmetry
-constraint symmetry_breaking_constraint(forall (c,k in CIRCUITS where c<k /\ new_hor_dim[c] == new_hor_dim[k])( x_pos[c] == x_pos[k] /\ new_ver_dim[c] + new_ver_dim[k] == max([y_pos[c] + new_ver_dim[c], y_pos[k] + new_ver_dim[k]]) - min([y_pos[c], y_pos[k]]) -> y_pos[c] < y_pos[k]));
-
-
-%==================================================
-
-
-%============Search annotation=====================
-
-%ann:search_ann;
-%search_ann = int_search(array1d(solution_bl), dom_w_deg, indomain_random);
-
-ann:search_ann_x;
-ann:search_ann_y;
-search_ann_x = int_search( x_pos, input_order, indomain_random);
-search_ann_y = int_search( y_pos, input_order, indomain_random);
-%==================================================
+% ================ Implied constraints ===============
+constraint cumulative(circuitx, dim_1, dim_2, height)::domain;
+constraint cumulative(circuity, dim_2, dim_1, width)::domain;
 
 
-%============Solve================================
+% ====================================================
+% ========== SYMMETRY BREAKING CONSTRAINTS ===========
+% ====================================================
 
-solve :: search_ann_x
-      :: search_ann_y
-      :: restart_luby(100)
-      ::relax_and_reconstruct(x_pos, 40) 
-  minimize height;
+% ============= Largest circuit on (0,0) ============= => slower than xy S.B.
+% constraint circuitx[1] == 0 /\ circuity[1] == 0;
 
-%==================================================
+% ============== S.B. on x and y axis ================
+array[CIRCUITS] of var CIRCUITX_DOM: circuitx_sym;
+array[CIRCUITS] of var CIRCUITY_DOM: circuity_sym;
+
+constraint forall (i in CIRCUITS) (
+	(circuity_sym[i] == height - circuity[i] - dim_2[i])
+/\	(circuitx_sym[i] == width - circuitx[i] - dim_1[i])
+);
+
+constraint symmetry_breaking_constraint (
+	lex_lesseq(circuitx, circuitx_sym)
+);
+constraint symmetry_breaking_constraint (
+	lex_lesseq(circuity, circuity_sym)
+);
+
+% ========== S.B. on 2-3 stacking circuits ===========
+predicate two_stack_ver(int: i, int: j) = (
+	circuitx[i] == circuitx[j] /\ dim_1[i] == dim_1[j] /\ dim_2[i] + dim_2[j] == max([circuity[i]+dim_2[i],circuity[j]+dim_2[j]]) - min([circuity[i],circuity[j]])
+);
+
+predicate two_stack_hor(int: i, int: j) = (
+	circuity[i] == circuity[j] /\ dim_2[i] == dim_2[j] /\ dim_1[i] + dim_1[j] == max([circuitx[i]+dim_1[i],circuitx[j]+dim_1[j]]) - min([circuitx[i],circuitx[j]])
+);
+
+% => set true to acivate stacking symmetry (for final model remove the if)
+% => un-comment those 3 line to acivate 3 stacking symmetry (for final model remove the if)
+constraint if false then (
+	symmetry_breaking_constraint (
+		forall ( i,j in CIRCUITS where i<j /\ two_stack_ver(i,j) ) (
+			circuity[i] < circuity[j]
+	% 	/\	forall( k in CIRCUITS where i!=k /\ j!=k /\ dim_2[k] == dim_2[i] + dim_2[j] /\ dim_1[k] + dim_1[i] == max([circuitx[k]+dim_1[k],circuitx[i]+dim_1[i]]) - min([circuitx[k],circuitx[i]]) ) (
+	% 				circuitx[k] < circuitx[i] /\ circuitx[k] < circuitx[j]
+	% 		)
+		)
+	)
+/\
+	symmetry_breaking_constraint (
+		forall ( i,j in CIRCUITS where i<j /\ two_stack_hor(i,j)) (
+			circuity[i] < circuity[j]
+	% 	/\	forall( k in CIRCUITS where i!=k /\ j!=k /\ dim_1[k] == dim_1[i] + dim_1[j] /\ dim_2[k] + dim_2[i] == max([circuity[k]+dim_2[k],circuity[i]+dim_2[i]]) - min([circuity[k],circuity[i]])) (
+	% 			circuity[k] < circuity[i] /\ circuity[k] < circuity[j]
+	% 		)
+		)
+	)
+) endif;
 
 
-%================Output============================
-output [ show(width) ++ " " ++ show(height) ++ " \n" ++ show(n_circuits)]
-++[ "\n" ++ show(new_hor_dim[c])++ " " ++ show(new_ver_dim[c])++ " " ++ show(x_pos[c]) ++ " "++ show(y_pos[c])|
-c in CIRCUITS ];
+% ====================================================
+% ===================== SEARCH =======================
+% ====================================================
 
-%==================================================
+solve
+	:: int_search(circuity, input_order, indomain_min)
+	:: bool_search(rotated, dom_w_deg, indomain_random)
+	:: int_search(circuitx, input_order, indomain_random)
+	:: restart_luby(150)
+	:: relax_and_reconstruct(circuitx, 40)
+	minimize height;
+
+output [ 
+	show(width) ++ " " ++ show(height) ++ " \n" ++ 
+	show(n_circuits) ] ++[ "\n" ++ 
+	show(dim_1[c])++ " " ++ show(dim_2[c])++ " " ++ 
+	show(circuitx[c]) ++ " "++ show(circuity[c])
+	| c in CIRCUITS ] ++ [ "\n" ++
+	show(rotated) ]
