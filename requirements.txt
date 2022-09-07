@@ -1,3 +1,4 @@
 z3-solver==4.11.2.0
 numpy==1.23.2
 matplotlib==3.5.3
+minizinc==0.7.0
