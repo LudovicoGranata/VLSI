@@ -2,8 +2,6 @@
 
 This repository contains a project realized as part of the *Combinatorial Decision Making and Optimization course* exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
 
-This repository contains a project realized as part of the _Combinatorial Decision Making and Optimization course_ exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
-
 _VLSI_ (Very Large Scale Integration) refers to the trend of integrating
 circuits into silicon chips. A typical example is the smartphone. The modern
 trend of shrinking transistor sizes, allowing engineers to fit more and
@@ -60,4 +58,4 @@ python ./plot.py
 | :-------: | :-------: | :-------: | :------------------------------------: | :--------------: |
 |  ???????  | Ludovico  | Granata   | `ludovico.granata@studio.unibo.it`     | [_LudovicoGranata_](https://github.com/LudovicoGranata) |
 |  973719  | Parsa     | Dahesh    | `parsa.dahesh@studio.unibo.it`         | [_ParsaD23_](https://github.com/ParsaD23) |
-|  ???????  | Simone    | Persiani  | `simone.persiani2@studio.unibo.it`     | [_iosonopersia_](https://github.com/iosonopersia) |
+|  984854  | Simone    | Persiani  | `simone.persiani2@studio.unibo.it`     | [_iosonopersia_](https://github.com/iosonopersia) |
