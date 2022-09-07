@@ -130,7 +130,7 @@ def solve_task(ins_index):
 
 if __name__ == "__main__":
 	
-	n_instances = 20
+	n_instances = 40
 
 	global configuration
 	configuration = set()

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     times = []
-    for i in range(1, 20 + 1):
+    for i in range(1, 40 + 1):
         print(f">>> Trying to solve instance #{i}...")
         sat_model = SAT_Model(i)
         try:
