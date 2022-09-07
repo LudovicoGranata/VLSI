@@ -144,6 +144,8 @@ class SAT_Model():
 
         constraints_production_time = time.time() - start
         print(f'Constraints production time: {round(constraints_production_time, 3)} seconds.')
+        if constraints_production_time > 300.0:
+            raise Exception('Timeout reached during constraint production.')
 
         num_threads = 8
         s.set("sat.threads", num_threads - 1)
