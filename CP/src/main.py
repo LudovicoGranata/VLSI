@@ -30,14 +30,23 @@ def main():
 		"base_model_v7.mzn",
 		"base_model_v8.mzn"]
 
+	out_dir_models = ["v1/",
+		"v2/",
+		"v3/",
+		"v4/",
+		"v5/",
+		"v6/",
+		"v7/",
+		"v8/"]
+
 	cores = 8
 	ins_dir = "./CP/ins/"
 	out_dir = "./CP/out/base/"
 	model_dir = "./CP/src/models/"
 	
-	for model in models:
+	for model, out_dir_model in zip(models, out_dir_models):
 		for in_file in os.listdir(ins_dir):
-			solve_instance(cores, f"{model_dir}{model}", f"{ins_dir}{in_file}", out_dir)
+			solve_instance(cores, f"{model_dir}{model}", f"{ins_dir}{in_file}", f"{out_dir}{out_dir_model}")
 
 if __name__ == '__main__':
 	main()
