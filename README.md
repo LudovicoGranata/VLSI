@@ -2,12 +2,17 @@
 
 This repository contains a project realized as part of the *Combinatorial Decision Making and Optimization course* exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
 
-*VLSI* (Very Large Scale Integration) refers to the trend of integrating circuits into silicon chips.
-The problem is to design the VLSI of the circuits defining your electrical device: given a
-fixed-width plate and a list of rectangular circuits, decide how to place them
-on the plate so that the length of the final device is minimized (improving its
-portability).
-Different solution in CP, SAT and SMT have been developed.
+This repository contains a project realized as part of the _Combinatorial Decision Making and Optimization course_ exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
+
+_VLSI_ (Very Large Scale Integration) refers to the trend of integrating
+circuits into silicon chips. A typical example is the smartphone. The modern
+trend of shrinking transistor sizes, allowing engineers to fit more and
+more transistors into the same area of silicon, has pushed the integration
+of more and more functions of cellphone circuitry into a single silicon die
+(i.e. plate). This enabled the modern cellphone to mature into a powerful
+tool that shrank from the size of a large brick-sized unit to a device small
+enough to comfortably carry in a pocket or purse, with a video camera,
+touchscreen, and other advanced features.
 
 ## Prerequisites
 
