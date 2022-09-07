@@ -24,7 +24,7 @@ class SAT_Model():
         self.solution = []
 
     def save_solution(self):
-        with open(f'./SAT/out/ins-{self.instance_idx}.txt', 'w') as f_result:
+        with open(f'./SAT/out/base/out-{self.instance_idx}.txt', 'w') as f_result:
             f_result.write(f'{self.grid_width} {self.reached_height}\n')
             f_result.write(f'{self.n_circuits}\n')
             for i in range(self.n_circuits):

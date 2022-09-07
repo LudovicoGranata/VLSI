@@ -29,7 +29,7 @@ def solve_cp(model_path):
 			print("Solved!")
 			print(f"Elapsed time: {str(round(solving_time, 3))}")
 			
-			with open('./CP/out/ins-' + str(i) + '.txt', 'w') as writefile:
+			with open('./CP/out/base/out-' + str(i) + '.txt', 'w') as writefile:
 				writefile.write(str(result))
 		else:
 			print("Timeout!")
