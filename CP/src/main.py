@@ -1,6 +1,5 @@
 import datetime
 import minizinc as mz
-import plot
 
 def solve_cp(model_path):
 	tot_instances = 40
@@ -24,7 +23,7 @@ def solve_cp(model_path):
 
 		if result.status == mz.result.Status.OPTIMAL_SOLUTION:
 			solved_instances+=1
-						
+			
 			solving_time = ((result.statistics['time'].microseconds / (10 ** 6)) + result.statistics['time'].seconds)
 			avg_time += solving_time
 			print("Solved!")
@@ -32,8 +31,6 @@ def solve_cp(model_path):
 			
 			with open('./CP/out/ins-' + str(i) + '.txt', 'w') as writefile:
 				writefile.write(str(result))
-			
-			plot.plot("./CP/out/","ins-"+str(i)+".txt","./CP/out/images")
 		else:
 			print("Timeout!")
 		
