@@ -1,6 +1,6 @@
 # VLSI
 
-This repository contains a project realized as part of the *Combinatorial Decision Making and Optimization course* exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
+This repository contains a project realized as part of the _Combinatorial Decision Making and Optimization course_ exam of the [Master's degree in Artificial Intelligence, University of Bologna](https://corsi.unibo.it/2cycle/artificial-intelligence).
 
 _VLSI_ (Very Large Scale Integration) refers to the trend of integrating
 circuits into silicon chips. A typical example is the smartphone. The modern
@@ -39,11 +39,11 @@ python ./SAT/src/main_rotations.py
 ## SMT
 
 ```bash
-python ./SAT/src/base_model.py
+python ./SAT/src/main.py
 ```
 
 ```bash
-python ./SAT/src/rotation_model.py
+python ./SAT/src/main_rotation.py
 ```
 
 ## Plot results as images
