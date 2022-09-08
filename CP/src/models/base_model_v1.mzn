@@ -91,17 +91,17 @@ predicate two_stack_hor(int: i, int: j) = (
 constraint symmetry_breaking_constraint (
 		forall ( i,j in CIRCUITS where i<j /\ two_stack_ver(i,j)) (
 			Y_pos[i] <= Y_pos[j]
-% 		/\	forall( k in CIRCUITS where i!=k /\ j!=k /\ ver_dim[k] == ver_dim[i] + ver_dim[j] /\ hor_dim[k] + hor_dim[i] == max([X_pos[k]+hor_dim[k],X_pos[i]+hor_dim[i]]) - min([X_pos[k],X_pos[i]]) ) (
-% 					X_pos[k] < X_pos[i] /\ X_pos[k] < X_pos[j]
-% 			)
+		/\	forall( k in CIRCUITS where i!=k /\ j!=k /\ ver_dim[k] == ver_dim[i] + ver_dim[j] /\ hor_dim[k] + hor_dim[i] == max([X_pos[k]+hor_dim[k],X_pos[i]+hor_dim[i]]) - min([X_pos[k],X_pos[i]]) ) (
+					X_pos[k] < X_pos[i] /\ X_pos[k] < X_pos[j]
+			)
 		)
 	);
 constraint symmetry_breaking_constraint (
 		forall ( i,j in CIRCUITS where i<j /\ two_stack_hor(i,j)) (
 			 Y_pos[i] <= Y_pos[j]
-% 		/\	forall( k in CIRCUITS where i!=k /\ j!=k /\ hor_dim[k] == hor_dim[i] + hor_dim[j] /\ ver_dim[k] + ver_dim[i] == max([Y_pos[k]+ver_dim[k],Y_pos[i]+ver_dim[i]]) - min([Y_pos[k],Y_pos[i]])) (
-% 				Y_pos[k] < Y_pos[i] /\ Y_pos[k] < Y_pos[j]
-% 			)
+		/\	forall( k in CIRCUITS where i!=k /\ j!=k /\ hor_dim[k] == hor_dim[i] + hor_dim[j] /\ ver_dim[k] + ver_dim[i] == max([Y_pos[k]+ver_dim[k],Y_pos[i]+ver_dim[i]]) - min([Y_pos[k],Y_pos[i]])) (
+				Y_pos[k] < Y_pos[i] /\ Y_pos[k] < Y_pos[j]
+			)
 		)
 	);
 
@@ -111,9 +111,9 @@ constraint symmetry_breaking_constraint (
 % ====================================================
 
 solve
-	:: int_search(Y_pos, input_order, indomain_random)
-	:: int_search(X_pos, input_order, indomain_random)
-	:: restart_luby(150)
+	:: int_search(Y_pos, dom_w_deg, indomain_random)
+	:: int_search(X_pos, dom_w_deg, indomain_random)
+	:: restart_luby(100)
 	:: relax_and_reconstruct(X_pos, 40)
 	minimize height;
 
