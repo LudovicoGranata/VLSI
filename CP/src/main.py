@@ -20,10 +20,9 @@ def solve_instance(cores, model, in_file, out_dir):
 		subprocess.run(command.split())
 		elapsed_time = time() - start_time
 		
-		print(f'{elapsed_time * 1000:.1f} ms')
+		print(f'{elapsed_time:4f} s')
 		if (elapsed_time * 1000) < 300000:
 			subprocess.run(command.split(), stdout=f)
-			f.write('{}'.format(elapsed_time))
 
 def main():
 	models = ["rotation_model.mzn"]
