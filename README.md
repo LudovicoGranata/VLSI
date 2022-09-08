@@ -56,6 +56,6 @@ python ./plot.py
 
 |  Reg No.  |  Name     |  Surname  |     Email                              |    Username      |
 | :-------: | :-------: | :-------: | :------------------------------------: | :--------------: |
-|  ???????  | Ludovico  | Granata   | `ludovico.granata@studio.unibo.it`     | [_LudovicoGranata_](https://github.com/LudovicoGranata) |
+|  1005278  | Ludovico  | Granata   | `ludovico.granata@studio.unibo.it`     | [_LudovicoGranata_](https://github.com/LudovicoGranata) |
 |  973719  | Parsa     | Dahesh    | `parsa.dahesh@studio.unibo.it`         | [_ParsaD23_](https://github.com/ParsaD23) |
 |  984854  | Simone    | Persiani  | `simone.persiani2@studio.unibo.it`     | [_iosonopersia_](https://github.com/iosonopersia) |
