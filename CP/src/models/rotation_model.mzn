@@ -140,7 +140,7 @@ solve
 output [ 
 	show(width) ++ " " ++ show(height) ++ " \n" ++ 
 	show(n_circuits) ] ++[ "\n" ++ 
-	show(dim_1[c])++ " " ++ show(dim_2[c])++ " " ++ 
-	show(X_pos[c]) ++ " "++ show(Y_pos[c]) ++ " " ++
-	if fix(rotated[c]) then "R\n" else "\n" endif | c in CIRCUITS ] ++ [ "\n"
+	show(hor_dim[c])++ " " ++ show(ver_dim[c])++ " " ++ 
+	show(X_pos[c]) ++ " "++ show(Y_pos[c]) ++
+	if fix(rotated[c]) then " R" else "" endif | c in CIRCUITS ] ++ [ "\n"
 ]

@@ -36,8 +36,8 @@ def solve_task(ins_index):
 	# ================ DECISION VARIABLES ================
 	# ====================================================
 
-	circuitx = [Int(f"circuitx_{i+1}") for i in range(n_circuits)]
-	circuity = [Int(f"circuity_{i+1}") for i in range(n_circuits)]
+	X_pos = [Int(f"X_pos_{i+1}") for i in range(n_circuits)]
+	Y_pos = [Int(f"Y_pos_{i+1}") for i in range(n_circuits)]
 	rotated = [Bool(f"rotated_{i+1}") for i in range(n_circuits)]
 
 	height = Int("height")
@@ -63,31 +63,31 @@ def solve_task(ins_index):
 	configuration.add("largest block on bottom left")
 	largest_block_index = np.argmax([dim1[i]*dim2[i] for i in range(n_circuits)])
 	constraints += [ And(
-						circuitx[largest_block_index] == 0,
-						circuity[largest_block_index] == 0 )]
+						X_pos[largest_block_index] == 0,
+						Y_pos[largest_block_index] == 0 )]
 	
 	configuration.add("diffn")
-	constraints += diffn(circuitx, circuity, hor_dim, ver_dim)
+	constraints += diffn(X_pos, Y_pos, hor_dim, ver_dim)
 	
 	configuration.add("border constraints")
-	constraints += [ And(0 <= circuitx[i], circuitx[i] + hor_dim[i] <= width,
-						0 <= circuity[i], circuity[i] + ver_dim[i] <= height)
+	constraints += [ And(0 <= X_pos[i], X_pos[i] + hor_dim[i] <= width,
+						0 <= Y_pos[i], Y_pos[i] + ver_dim[i] <= height)
 						for i in range(n_circuits) #if i != largest_block_index
 					]
 	
 	# ================ Implied constraints =============== => slower
 	# configuration.add("cumulative")
-	# constraints += cumulative(circuitx, hor_dim, ver_dim, height)
-	# constraints += cumulative(circuity, ver_dim, hor_dim, width)
+	# constraints += cumulative(X_pos, hor_dim, ver_dim, height)
+	# constraints += cumulative(Y_pos, ver_dim, hor_dim, width)
 	
 	# ============== S.B. on x and y axis ================ => slower
 	# configuration.add("x and y symmetry with lex order")
-	# circuitx_sym = [Int(f"circuitx_sym_{i+1}") for i in range(n_circuits)]
-	# circuity_sym = [Int(f"circuity_sym_{i+1}") for i in range(n_circuits)]
+	# X_pos_sym = [Int(f"X_pos_sym_{i+1}") for i in range(n_circuits)]
+	# Y_pos_sym = [Int(f"Y_pos_sym_{i+1}") for i in range(n_circuits)]
 
 	# constraints += [ And(
-	# 	circuity_sym[i] == height - circuity[i] - ver_dim[i],
-	# 	circuitx_sym[i] == width - circuitx[i] - hor_dim[i])
+	# 	Y_pos_sym[i] == height - Y_pos[i] - ver_dim[i],
+	# 	X_pos_sym[i] == width - X_pos[i] - hor_dim[i])
 	# 	for i in range(n_circuits)
 	# ]
 
@@ -96,9 +96,9 @@ def solve_task(ins_index):
 	# for i in range(n_circuits):
 	# 	for j in range(i,n_circuits):
 	# 		constraints += [ Implies(
-	# 			And(circuitx[i] == circuitx[j], hor_dim[i] == hor_dim[j],
-	# 				(hor_dim[i]+hor_dim[j]) == (max_z3([circuitx[i]+hor_dim[i], circuitx[j]+hor_dim[j]]) - min_z3([circuitx[i],circuitx[j]]))),
-	# 			circuity[i] < circuity[j]
+	# 			And(X_pos[i] == X_pos[j], hor_dim[i] == hor_dim[j],
+	# 				(hor_dim[i]+hor_dim[j]) == (max_z3([X_pos[i]+hor_dim[i], X_pos[j]+hor_dim[j]]) - min_z3([X_pos[i],X_pos[j]]))),
+	# 			Y_pos[i] < Y_pos[j]
 	# 		)]
 
 	opt = Optimize()
@@ -108,22 +108,22 @@ def solve_task(ins_index):
 	
 	opt.set(timeout=opt_timeout*60*1000)
 
-	circuitx_sol = []
-	circuity_sol = []
+	X_pos_sol = []
+	Y_pos_sol = []
 	rotated_sol = []
 	
 	if opt.check() == sat:
 		model = opt.model()
 		for i in range(n_circuits):
-			circuitx_sol.append(model.evaluate(circuitx[i]).as_string())
-			circuity_sol.append(model.evaluate(circuity[i]).as_string())
+			X_pos_sol.append(model.evaluate(X_pos[i]).as_string())
+			Y_pos_sol.append(model.evaluate(Y_pos[i]).as_string())
 			rotated_sol.append(model.evaluate(rotated[i]))
 	
 		height_sol = model.evaluate(height).as_string()
 
 		print(f"instance - {ins_index}")
 		
-		save_solution(ins_index, width, int(height_sol), n_circuits, dim1, dim2, circuitx_sol, circuity_sol, rotated_sol)
+		save_solution(ins_index, width, int(height_sol), n_circuits, dim1, dim2, X_pos_sol, Y_pos_sol, rotated_sol)
 
 		return 0
 	return -1 # -1 error is for timeout
