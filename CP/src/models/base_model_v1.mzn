@@ -32,10 +32,10 @@ set of int: HEIGHT_DOM = min_height..max_height;
 
 var HEIGHT_DOM: height;
 
-set of int: CIRCUITX_DOM = 0..width - min(hor_dim);
-set of int: CIRCUITY_DOM = 0..max_height - min(ver_dim);
-array[CIRCUITS] of var CIRCUITX_DOM: X_pos;
-array[CIRCUITS] of var CIRCUITY_DOM: Y_pos;
+set of int: X_POS_DOM = 0..width - min(hor_dim);
+set of int: Y_POS_DOM = 0..max_height - min(ver_dim);
+array[CIRCUITS] of var X_POS_DOM: X_pos;
+array[CIRCUITS] of var Y_POS_DOM: Y_pos;
 
 
 % ====================================================
@@ -63,8 +63,8 @@ constraint cumulative(Y_pos, ver_dim, hor_dim, width)::domain;
 % constraint X_pos[1] == 0 /\ Y_pos[1] == 0;
 
 % ============== S.B. on x and y axis ================
-array[CIRCUITS] of var CIRCUITX_DOM: X_pos_sym;
-array[CIRCUITS] of var CIRCUITY_DOM: Y_pos_sym;
+array[CIRCUITS] of var X_POS_DOM: X_pos_sym;
+array[CIRCUITS] of var Y_POS_DOM: Y_pos_sym;
 
 constraint forall (i in CIRCUITS) (
 	(Y_pos_sym[i] == height - Y_pos[i] - ver_dim[i])

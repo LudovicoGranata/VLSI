@@ -26,14 +26,12 @@ def solve_instance(cores, model, in_file, out_dir):
 			f.write('{}'.format(elapsed_time))
 
 def main():
-	models = ["base_model_v1.mzn",
-		"base_model_v2.mzn"]
-	out_dir_models = ["v1/",
-		"v2/"]
+	models = ["rotation_model.mzn"]
+	out_dir_models = [""]
 
 	cores = 8
 	ins_dir = "./CP/ins/"
-	out_dir = "./CP/out/base/"
+	out_dir = "./CP/out/rotation/"
 	model_dir = "./CP/src/models/"
 	
 	for model, out_dir_model in zip(models, out_dir_models):
