@@ -22,6 +22,10 @@ def plot(dir, instance, out):
   with open(dir + "/"+ instance,'r') as readfile:
     for line in readfile:
       line = line.replace("\n","")
+
+      if line.startswith('-') or line.startswith('='):
+        break
+
       if (i==0):
         width, height = line.split()
 
@@ -84,13 +88,13 @@ def plot_results(directory):
 
 if __name__ == "__main__":
   print('Plotting results from CP models...')
-  plot_results('./CP/out')
-  plot_results('./CP/out_rot')
+  plot_results('./CP/out/base')
+  plot_results('./CP/out/rotation')
 
   print('Plotting results from SAT models...')
-  plot_results('./SAT/out')
-  plot_results('./SAT/out_rot')
+  plot_results('./SAT/out/base')
+  plot_results('./SAT/out/rotation')
 
   print('Plotting results from SMT models...')
-  plot_results('./SMT/out')
-  plot_results('./SMT/out_rot')
+  plot_results('./SMT/out/base')
+  plot_results('./SMT/out/rotation')
