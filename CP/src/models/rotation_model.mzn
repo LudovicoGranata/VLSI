@@ -138,7 +138,7 @@ solve
 	minimize height;
 
 output [ 
-	show(width) ++ " " ++ show(height) ++ " \n" ++ 
+	show(width) ++ " " ++ show(height) ++ "\n" ++ 
 	show(n_circuits) ] ++[ "\n" ++ 
 	show(hor_dim[c])++ " " ++ show(ver_dim[c])++ " " ++ 
 	show(X_pos[c]) ++ " "++ show(Y_pos[c]) ++
