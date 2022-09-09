@@ -25,12 +25,12 @@ def solve_instance(cores, model, in_file, out_dir):
 			subprocess.run(command.split(), stdout=f)
 
 def main():
-	models = ["base_model_v1.mzn"]
+	models = ["rotation_model.mzn"]
 	out_dir_models = [""]
 
 	cores = 8
 	ins_dir = "./CP/ins/"
-	out_dir = "./CP/out/base/"
+	out_dir = "./CP/out/rotation/"
 	model_dir = "./CP/src/models/"
 	
 	for model, out_dir_model in zip(models, out_dir_models):
@@ -39,4 +39,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-	
