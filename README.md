@@ -24,13 +24,17 @@ pip install -r ./requirements.txt
 
 ## CP
 
-Use MiniZinc IDE!
+Run the models provided in the `src` folder using Minizinc's IDE.
 
 ## SAT
+
+Run the base model over each instance:
 
 ```bash
 python ./SAT/src/main.py
 ```
+
+Run the model with allowed rotations over each instance:
 
 ```bash
 python ./SAT/src/main_rotations.py
@@ -38,15 +42,21 @@ python ./SAT/src/main_rotations.py
 
 ## SMT
 
+Run the base model over each instance:
+
 ```bash
 python ./SAT/src/main.py
 ```
+
+Run the model with allowed rotations over each instance:
 
 ```bash
 python ./SAT/src/main_rotation.py
 ```
 
 ## Plot results as images
+
+Create a set of images that graphically represent the solutions by using the following command (they will be found in the `images` folder next to the output files):
 
 ```bash
 python ./plot.py
