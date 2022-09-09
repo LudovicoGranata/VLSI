@@ -51,7 +51,7 @@ python ./SAT/src/main.py
 Run the model with allowed rotations over each instance:
 
 ```bash
-python ./SAT/src/main_rotation.py
+python ./SAT/src/main_rotations.py
 ```
 
 ## Plot results as images
