@@ -70,7 +70,7 @@ def plot(dir, instance, out):
       i += 1
 
   # Here we export the plot:
-  plt.savefig(out+"/"+instance.split(".")[0]+"_out.png")
+  plt.savefig(out+"/"+instance.split(".")[0]+".png")
   
   # Each figure must be explicitly closed to avoid
   # unnecessarily consuming too much memory (and
